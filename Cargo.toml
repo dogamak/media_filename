@@ -1,0 +1,9 @@
+[package]
+name = "media_filename"
+version = "0.1.0"
+authors = ["Mitja Karhusaari <monttu300@gmail.com>"]
+
+[dependencies]
+lazy_static = "*"
+regex = "*"
+itertools = "*"
