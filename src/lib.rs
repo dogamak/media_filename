@@ -10,16 +10,16 @@ use itertools::Itertools;
 
 #[derive(Debug, Clone)]
 pub struct MediaInfo {
-    title:      Option<String>,
-    group:      Option<String>,
-    resolution: Option<String>,
-    season:     Option<u32>,
-    episode:    Option<u32>,
-    source:     Option<String>,
-    year:       Option<u32>,
-    codec:      Option<String>,
-    audio:      Option<String>,
-    extension:  Option<String>
+    pub title:      Option<String>,
+    pub group:      Option<String>,
+    pub resolution: Option<String>,
+    pub season:     Option<u32>,
+    pub episode:    Option<u32>,
+    pub source:     Option<String>,
+    pub year:       Option<u32>,
+    pub codec:      Option<String>,
+    pub audio:      Option<String>,
+    pub extension:  Option<String>
 }
 
 fn parse_pattern(rope: &mut Rope, regex: &Regex) -> Option<String> {
