@@ -1,9 +1,13 @@
 [package]
 name = "media_filename"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mitja Karhusaari <monttu300@gmail.com>"]
+license = "MIT"
+repository = "http://github.com/theMonttu/media_filename"
+readme = "README.md"
+description = "A library for squeezing information out of filenames of torrents and media files."
 
 [dependencies]
-lazy_static = "*"
-regex = "*"
-itertools = "*"
+lazy_static = "0.2.1"
+regex = "0.1.71"
+itertools = "0.4.15"

@@ -2,7 +2,9 @@
 A library for squeezing information out of filenames of torrents and media files.
 
 ## Usage
-    extern crate media_filename;
+
+```rust
+   extern crate media_filename;
     use media_filename::parse_filename;
 
     fn main() {
@@ -14,3 +16,4 @@ A library for squeezing information out of filenames of torrents and media files
        println!("  Resolution: {}", info.resolution.unwrap());
        println!("  File extension: {}", info.extension.unwrap());
     }
+```
