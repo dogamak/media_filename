@@ -48,11 +48,11 @@ fn parse_pattern(rope: &mut Rope, regex: &Regex) -> Option<String> {
 pub fn parse_filename(filename: &str) -> MediaInfo {
     lazy_static! {
         static ref EXTENSION_REGEX: Regex = Regex::new("\\.([A-Za-z0-9]{2,4})$").unwrap();
-        static ref RESOLUTION_REGEX: Regex = Regex::new("([0-9]{3,4}p)").unwrap();
+        static ref RESOLUTION_REGEX: Regex = Regex::new("([0-9]{3,4}p|[0-9]{3,4}x[0-9]{3,4})").unwrap();
         static ref GROUP_REGEX: Regex = Regex::new("(?:^\\[([^]]+)\\]|- ?([^-]+)$)").unwrap();
         static ref EPISODE_REGEX: Regex = Regex::new("(?:[eE]([0-9]{2,3})|[^0-9A-Za-z]([0-9]{2,3})(?:v[0-9])?[^0-9A-Za-z])").unwrap();
         static ref SEASON_REGEX: Regex = Regex::new("[sS]([0-9]{1,2})").unwrap();
-        static ref SOURCE_REGEX: Regex = Regex::new("((?i)(?:PPV.)?[HP]DTV|(?:HD)?CAM|BRRIP|TS|(?:PPV )?WEB.?DL(?: DVDRip)?|HDRip|DVDRip|CamRip|W[EB]BRip|BluRay|DvDScr|hdtv)").unwrap();
+        static ref SOURCE_REGEX: Regex = Regex::new("((?i)(?:PPV.)?[HP]DTV|(?:HD)?CAM|BRRIP|TS|(?:PPV )?WEB.?DL(?: DVDRip)?|HDRip|DVDRip|CamRip|W[EB]BRip|BluRay|BD|DVD|DvDScr|hdtv)").unwrap();
         static ref YEAR_REGEX: Regex = Regex::new("((19[0-9]|20[01])[0-9])").unwrap();
         static ref CODEC_REGEX: Regex = Regex::new("((?i)xvid|x264|h\\.?264)").unwrap();
         static ref AUDIO_REGEX: Regex = Regex::new("((?i)MP3|DD5\\.?1|Dual[- ]Audio|LiNE|DTS|AAC(?:\\.?2\\.0)?|AC3(?:\\.5\\.1)?)").unwrap();
@@ -127,6 +127,12 @@ mod tests {
             year: 2015 as u32,
             source: "HDRip",
             codec: "XViD"
+        });
+
+        assert_parse!("Mega Movie (BD 1280x720 10bit)", {
+            title: "Mega Movie",
+            source: "BD",
+            resolution: "1280x720"
         });
     }
 }
