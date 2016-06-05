@@ -1,6 +1,6 @@
 [package]
 name = "media_filename"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Mitja Karhusaari <monttu300@gmail.com>"]
 license = "MIT"
 repository = "http://github.com/theMonttu/media_filename"
