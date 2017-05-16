@@ -7,6 +7,7 @@ mod rope;
 use rope::Rope;
 use regex::Regex;
 use itertools::Itertools;
+use std::path::{Path, Component};
 
 #[derive(Debug, Clone)]
 pub struct MediaInfo {
@@ -46,7 +47,27 @@ fn parse_pattern(rope: &mut Rope, regex: &Regex) -> Option<String> {
     None
 }
 
-pub fn parse_filename(filename: &str) -> MediaInfo {
+pub fn parse_path<P: AsRef<Path>>(path: P) -> MediaInfo {    
+    let mut rope = Rope::empty();
+
+    for component in path.as_ref().components() {
+        match component {
+            Component::Normal(part) => {
+                if let Some(s) = part.to_str() {
+                    rope.append(s);
+                }
+            },
+            _ => {},
+        }
+    }
+    parse_rope(rope)
+}
+
+pub fn parse_filename<S: AsRef<str>>(filename: S) -> MediaInfo {
+    parse_rope(Rope::new(filename.as_ref()))
+}
+
+fn parse_rope(mut rope: Rope) -> MediaInfo {
     lazy_static! {
         static ref EXTENSION_REGEX: Regex = Regex::new("\\.([A-Za-z0-9]{2,4})$").unwrap();
         static ref RESOLUTION_REGEX: Regex = Regex::new("([0-9]{3,4}p|[0-9]{3,4}x[0-9]{3,4})").unwrap();
@@ -59,8 +80,6 @@ pub fn parse_filename(filename: &str) -> MediaInfo {
         static ref AUDIO_REGEX: Regex = Regex::new("((?i)MP3|DD5\\.?1|Dual[- ]Audio|LiNE|DTS|AAC(?:\\.?2\\.0)?|AC3(?:\\.5\\.1)?)").unwrap();
         static ref CRC_REGEX: Regex = Regex::new("\\[([0-9A-F]{8})\\]").unwrap();
     }
-
-    let mut rope = Rope::new(&filename);
 
     MediaInfo {
         extension:  parse_pattern(&mut rope, &EXTENSION_REGEX),
@@ -91,14 +110,14 @@ pub fn parse_filename(filename: &str) -> MediaInfo {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_filename;
+    use super::*;
 
     macro_rules! assert_parse {
-        ( $str:expr, {
+        ( $info:expr, {
             $($field:ident : $value:expr),*
         } ) => {
             {
-                let info = parse_filename($str);
+                let info = $info;
                 println!("{:?}", info);
                 $(assert!(info.$field == Some(($value).into()));)*
             }
@@ -106,15 +125,15 @@ mod tests {
     }
     
     #[test]
-    fn parse() {
-        assert_parse!("[HorribleSubs] Mayoiga - 03 [720p].mkv", {
+    fn test_parse_filename() {
+        assert_parse!(parse_filename("[HorribleSubs] Mayoiga - 03 [720p].mkv"), {
             group: "HorribleSubs",
             episode: 03 as u32,
             resolution: "720p",
             title: "Mayoiga"
         });
 
-        assert_parse!("Game of Thrones Season 6 S06E05 720p Web Dl x264 Mrlss", {
+        assert_parse!(parse_filename("Game of Thrones Season 6 S06E05 720p Web Dl x264 Mrlss"), {
             title: "Game of Thrones",
             season: 06 as u32,
             episode: 05 as u32,
@@ -123,7 +142,7 @@ mod tests {
             codec: "x264"
         });
 
-        assert_parse!("The Ones Below 2015 HDRip XViD-ETRG", {
+        assert_parse!(parse_filename("The Ones Below 2015 HDRip XViD-ETRG"), {
             title: "The Ones Below",
             source: "HDRip",
             group: "ETRG",
@@ -132,18 +151,28 @@ mod tests {
             codec: "XViD"
         });
 
-        assert_parse!("Mega Movie (BD 1280x720 10bit)", {
+        assert_parse!(parse_filename("Mega Movie (BD 1280x720 10bit)"), {
             title: "Mega Movie",
             source: "BD",
             resolution: "1280x720"
         });
 
-        assert_parse!("[RightShiftBy2] Akagami no Shirayuki-hime - 15 [720p][6860573F].mp4", {
+        assert_parse!(parse_filename("[RightShiftBy2] Akagami no Shirayuki-hime - 15 [720p][6860573F].mp4"), {
             title: "Akagami no Shirayuki-hime",
             group: "RightShiftBy2",
             episode: 15 as u32,
             resolution: "720p",
             checksum: "6860573F",
+            extension: "mp4"
+        });
+    }
+
+    #[test]
+    fn test_parse_path() {
+        assert_parse!(parse_path(Path::new("Season 1/Mr. Robot - e03 - Episode Title.mp4")), {
+            title: "Mr. Robot",
+            season: 1 as u32,
+            episode: 3 as u32,
             extension: "mp4"
         });
     }

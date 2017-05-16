@@ -19,8 +19,16 @@ impl<'a> Part<'a> {
 pub struct Rope<'a>(Vec<Part<'a>>);
 
 impl<'a> Rope<'a> {
+    pub fn empty() -> Rope<'a> {
+        Rope(vec![])
+    }
+
     pub fn new(s: &'a str) -> Rope<'a> {
         Rope(vec![ Part::new(s, false) ])
+    }
+
+    pub fn append(&mut self, part: &'a str) {
+        self.0.push(Part::new(part, false));
     }
 
     fn mark_part(&mut self, part: usize) {
