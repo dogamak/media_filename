@@ -52,7 +52,7 @@ pub fn parse_filename(filename: &str) -> MediaInfo {
         static ref RESOLUTION_REGEX: Regex = Regex::new("([0-9]{3,4}p|[0-9]{3,4}x[0-9]{3,4})").unwrap();
         static ref GROUP_REGEX: Regex = Regex::new("(?:^\\[([^]]+)\\]|- ?([^-]+)$)").unwrap();
         static ref EPISODE_REGEX: Regex = Regex::new("(?:[eE]([0-9]{2,3})|[^0-9A-Za-z]([0-9]{2,3})(?:v[0-9])?[^0-9A-Za-z])").unwrap();
-        static ref SEASON_REGEX: Regex = Regex::new("[sS]([0-9]{1,2})").unwrap();
+        static ref SEASON_REGEX: Regex = Regex::new("(?i:s|season.)([0-9]{1,2})").unwrap();
         static ref SOURCE_REGEX: Regex = Regex::new("((?i)(?:PPV.)?[HP]DTV|(?:HD)?CAM|BRRIP|[^a-z]TS[^a-z]|(?:PPV )?WEB.?DL(?: DVDRip)?|HDRip|DVDRip|CamRip|W[EB]BRip|BluRay|BD|DVD|DvDScr|hdtv)").unwrap();
         static ref YEAR_REGEX: Regex = Regex::new("((19[0-9]|20[01])[0-9])").unwrap();
         static ref CODEC_REGEX: Regex = Regex::new("((?i)xvid|x264|h\\.?264)").unwrap();
@@ -115,7 +115,7 @@ mod tests {
         });
 
         assert_parse!("Game of Thrones Season 6 S06E05 720p Web Dl x264 Mrlss", {
-            title: "Game of Thrones Season 6",
+            title: "Game of Thrones",
             season: 06 as u32,
             episode: 05 as u32,
             resolution: "720p",
