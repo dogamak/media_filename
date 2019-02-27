@@ -21,19 +21,22 @@ pub struct MediaInfo {
     pub codec:      Option<String>,
     pub audio:      Option<String>,
     pub extension:  Option<String>,
-    pub checksum:   Option<String>
+    pub checksum:   Option<String>,
+    pub scene:      Option<String>,
+    pub subs:       Option<String>,
+    pub region:     Option<String>,
 }
 
 fn parse_pattern(rope: &mut Rope, regex: &Regex) -> Option<String> {
     let mut info: Option<(usize, String, (usize, usize))> = None;
-    
+
     for (i, part) in rope.iter().enumerate() {
         if let Some(captures) = regex.captures(part.string) {
             let value = captures.iter().skip(1)
                 .find(|x| x.is_some())
                 .unwrap().unwrap().to_owned();
             let range = captures.pos(0).unwrap();
-            
+
             info = Some((i, value, range));
             break;
         }
@@ -47,7 +50,7 @@ fn parse_pattern(rope: &mut Rope, regex: &Regex) -> Option<String> {
     None
 }
 
-pub fn parse_path<P: AsRef<Path>>(path: P) -> MediaInfo {    
+pub fn parse_path<P: AsRef<Path>>(path: P) -> MediaInfo {
     let mut rope = Rope::empty();
 
     for component in path.as_ref().components() {
@@ -79,6 +82,9 @@ fn parse_rope(mut rope: Rope) -> MediaInfo {
         static ref CODEC_REGEX: Regex = Regex::new("((?i)xvid|x264|h\\.?264)").unwrap();
         static ref AUDIO_REGEX: Regex = Regex::new("((?i)MP3|DD5\\.?1|Dual[- ]Audio|LiNE|DTS|AAC(?:\\.?2\\.0)?|AC3(?:\\.5\\.1)?)").unwrap();
         static ref CRC_REGEX: Regex = Regex::new("\\[([0-9A-F]{8})\\]").unwrap();
+        static ref SCNENE_TAG_REGEX: Regex = Regex::new("(PROPER|DIGITALLY|REMASTERED|RATED|UNRATED|FESTIVAL|LIMITED|INTERNAL|REPACK|EXTENDED|RECODE|RERIP|READNFO|STV|SE|DC|DL|FS|WS)").unwrap();
+        static ref SUBS_REGEX: Regex = Regex::new("((?i)CUSTOM.SUBBED|SUBBED|UNSUBBED)").unwrap();
+        static ref REGION_REGEX: Regex = Regex::new("((?i)R1|R2|R3|R4|R5|R6)").unwrap();
     }
 
     MediaInfo {
@@ -92,6 +98,9 @@ fn parse_rope(mut rope: Rope) -> MediaInfo {
         season:     parse_pattern(&mut rope, &SEASON_REGEX).and_then(|s| s.parse().ok()),
         year:       parse_pattern(&mut rope, &YEAR_REGEX).and_then(|s| s.parse().ok()),
         episode:    parse_pattern(&mut rope, &EPISODE_REGEX).and_then(|s| s.parse().ok()),
+        scene:      parse_pattern(&mut rope, &SCNENE_TAG_REGEX),
+        subs:       parse_pattern(&mut rope, &SUBS_REGEX),
+        region:     parse_pattern(&mut rope, &REGION_REGEX),
 
         title: {
             let x: &[_] = &['(', ')', '[', ']', ' ', '-', '_', '.'];
@@ -123,7 +132,7 @@ mod tests {
             }
         }
     }
-    
+
     #[test]
     fn test_parse_filename() {
         assert_parse!(parse_filename("[HorribleSubs] Mayoiga - 03 [720p].mkv"), {
